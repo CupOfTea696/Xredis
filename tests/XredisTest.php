@@ -21,7 +21,7 @@ class XredisTest extends PHPUnit_Framework_TestCase
     }
     
     /**
-     * @depends JClientTest::test_decodes_get_response
+     * @depends ClientTest::test_decodes_get_response
      */
     public function test_uses_codec_for_magic_call()
     {

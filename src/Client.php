@@ -29,6 +29,10 @@ abstract class Client
         return $this->decodeResponseForCommand($commandID, $this->client->executeCommand($command));
     }
     
+    abstract protected function encode($v);
+    
+    abstract protected function decode($v);
+    
     /**
      * Call the client.
      * 
