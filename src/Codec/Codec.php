@@ -3,42 +3,42 @@
 trait Codec
 {
     private $storeEncoded = [
-        'getset' => ['from' => 1],
-        'linsert' => ['from' => 3],
-        'lpush' => ['from' => 1],
-        'lpushx' => ['from' => 1],
-        'lrem' => ['from' => 2],
-        'lset' => ['from' => 2],
-        'psetex' => ['from' => 2],
-        'rpush' => ['from' => 1],
-        'rpushx' => ['from' => 1],
-        'sadd' => ['from' => 1],
-        'set' => ['from' => 1, 'to' => 1],
-        'setex' => ['from' => 2],
-        'setrange' => ['from' => 1],
-        'setex' => ['from' => 2],
-        'smove' => ['from' => 2],
-        'srem' => ['from' => 1],
-        'zrank' => ['from' => 1],
-        'zrem' => ['from' => 1],
-        'zrevrank' => ['from' => 1],
-        'zscore' => ['from' => 1],
+        'GETSET' => ['from' => 1],
+        'LINSERT' => ['from' => 3],
+        'LPUSH' => ['from' => 1],
+        'LPUSHX' => ['from' => 1],
+        'LREM' => ['from' => 2],
+        'LSET' => ['from' => 2],
+        'PSETEX' => ['from' => 2],
+        'RPUSH' => ['from' => 1],
+        'RPUSHX' => ['from' => 1],
+        'SADD' => ['from' => 1],
+        'SET' => ['from' => 1, 'to' => 1],
+        'SETEX' => ['from' => 2],
+        'SETRANGE' => ['from' => 1],
+        'SETEX' => ['from' => 2],
+        'SMOVE' => ['from' => 2],
+        'SREM' => ['from' => 1],
+        'ZRANK' => ['from' => 1],
+        'ZREM' => ['from' => 1],
+        'ZREVRANK' => ['from' => 1],
+        'ZSCORE' => ['from' => 1],
     ];
     
     private $returnDecoded = [
-        'get',
-        'getset',
-        'lindex',
-        'lpop',
-        'lrange',
-        'mget',
-        'rpop',
-        'sdiff',
-        'sinter',
-        'smembers',
-        'spop',
-        'srandmember',
-        'sunion',
+        'GET',
+        'GETSET',
+        'LINDEX',
+        'LPOP',
+        'LRANGE',
+        'MGET',
+        'RPOP',
+        'SDIFF',
+        'SINTER',
+        'SMEMBERS',
+        'SPOP',
+        'SRANDMEMBER',
+        'SUNION',
     ];
     
     /**
@@ -50,26 +50,28 @@ trait Codec
      */
     private function process($method, array $parameters = [])
     {
-        $parameters = $this->encodeParametersForCommand($parameters);
-        $result = $this->callClient($method, $parameters);
+        $commandID = strtoupper($method);
         
-        return $this->decodeParametersForCommand($method, $result);
+        $parameters = $this->encodeParametersForCommand($commandID, $parameters);
+        $response = $this->callClient($commandID, $parameters);
+        
+        return $this->decodeResponseForCommand($commandID, $response);
     }
     
     final protected function encodeParametersForCommand($commandID, $parameters)
     {
-        if (in_array(strtolower($commandID), array_keys($this->storeEncoded))) {
-            $values = $this->storeEncoded[strtolower($commandID)];
+        if (in_array($commandID, array_keys($this->storeEncoded))) {
+            $values = $this->storeEncoded[$commandID];
             
-            $from = array_get($values, 'from', 0);
-            $to = array_get($values, 'to', max(0, count($parameters) -1));
+            $from = isset($values['from']) ? $values['from'] : 0;
+            $to = isset($values['to']) ? $values['to'] : max(0, count($parameters) -1);
             
             for ($i = $from; $i <= $to; $i++) {
                 $parameters[$i] = $this->encode($parameters[$i]);
             }
         }
         
-        if ($commandID == 'mset' || $commandID == 'msetnx') {
+        if ($commandID == 'MSET' || $commandID == 'MSETNX') {
             if (count($parameters) === 1 && is_array($parameters[0])) {
                 foreach ($parameters[0] as $k => $v) {
                     $parameters[0][$k] = $this->encode($v);
@@ -83,7 +85,7 @@ trait Codec
             }
         }
         
-        if ($commandID == 'zadd') {
+        if ($commandID == 'ZADD') {
             if (is_array(end($parameters))) {
                 foreach (array_pop($parameters) as $k => $v) {
                     $parameters[][$k] = $this->encode($v);
@@ -100,21 +102,19 @@ trait Codec
         return $parameters;
     }
     
-    final protected function decodeParametersForCommand($commandID, $result)
+    final protected function decodeResponseForCommand($commandID, $response)
     {
-        if (in_array(strtolower($method), $this->returnDecoded)) {
-            $result = $this->callClient($method, $parameters);
-            
-            if (is_array($result)) {
+        if (in_array($commandID, $this->returnDecoded)) {
+            if (is_array($response)) {
                 return array_map(function($value) {
                     return $this->decode($value);
-                }, $result);
+                }, $response);
             }
             
-            return $this->decode($result);
+            return $this->decode($response);
         }
         
-        return $result;
+        return $response;
     }
     
     /**

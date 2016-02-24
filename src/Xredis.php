@@ -7,6 +7,11 @@ class Xredis extends Pclient
 {
     use Package;
     
+    private $available_codecs = [
+        'json',
+        'serialize',
+    ];
+    
     private $codecs = [];
     
     public function json()
@@ -36,9 +41,12 @@ class Xredis extends Pclient
      */
     public function __call($method, $parameters)
     {
-        foreach ($this->codecs as $name => $codec) {
-            if (preg_match('/^' . $name . './')) {
-                return 
+        foreach ($this->available_codecs as $name) {
+            if (preg_match('/^' . $name . '_?(.*)/i', $method, $matches)) {
+                $codec = $this->$name();
+                $method = $matches[1];
+                
+                return call_user_func_array([$codec, $method], $parameters);
             }
         }
         

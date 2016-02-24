@@ -15,6 +15,6 @@ abstract class Database extends IlluminateDatabase
      */
     protected function callClient($method, $parameters)
     {
-        $this->command($method, $parameters);
+        return $this->command($method, $parameters);
     }
 }

@@ -2,6 +2,7 @@
 
 use Xredis\Codec\Codec;
 use Predis\Client as Pclient;
+use Predis\Command\CommandInterface;
 
 abstract class Client
 {
@@ -14,6 +15,20 @@ abstract class Client
         $this->client = $client;
     }
     
+    public function createCommand($commandID, $parameters = [])
+    {
+        $commandID = strtoupper($commandID);
+        
+        return $this->client->createCommand($commandID, $this->encodeParametersForCommand($commandID, $parameters));
+    }
+    
+    public function executeCommand(CommandInterface $command)
+    {
+        $commandID = $command->getId();
+        
+        return $this->decodeResponseForCommand($commandID, $this->client->executeCommand($command));
+    }
+    
     /**
      * Call the client.
      * 
@@ -22,9 +37,9 @@ abstract class Client
      */
     protected function callClient($method, $parameters)
     {
-        $this->client->__call($method, $parameters);
+        return call_user_func_array([$this->client, $method], $parameters);
     }
-
+    
     /**
      * Dynamically make a Redis command.
      *
