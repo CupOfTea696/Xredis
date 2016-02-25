@@ -1,6 +1,6 @@
 <?php
 
-use Xredis\Client;
+use CupOfTea\Xredis\Client;
 use Predis\Command\StringGet;
 
 class ClientTest extends PHPUnit_Framework_TestCase

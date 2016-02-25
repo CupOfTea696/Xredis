@@ -1,6 +1,6 @@
-<?php namespace Xredis;
+<?php namespace CupOfTea\Xredis;
 
-use Xredis\Codec\JsonCodec;
+use CupOfTea\Xredis\Codec\JsonCodec;
 
 class JDatabase extends Database
 {

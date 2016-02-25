@@ -1,4 +1,4 @@
-<?php namespace Xredis\Facades;
+<?php namespace CupOfTea\Xredis\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -14,6 +14,6 @@ class Jredis extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return 'Jredis';
+        return 'Xredis\Jredis';
     }
 }

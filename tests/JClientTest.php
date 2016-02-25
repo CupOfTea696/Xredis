@@ -1,6 +1,6 @@
 <?php
 
-use Xredis\JClient;
+use CupOfTea\Xredis\JClient;
 use Predis\Command\StringGet;
 
 class JClientTest extends PHPUnit_Framework_TestCase

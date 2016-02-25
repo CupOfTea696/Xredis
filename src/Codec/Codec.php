@@ -1,7 +1,10 @@
-<?php namespace Xredis\Codec;
+<?php namespace CupOfTea\Xredis\Codec;
 
 trait Codec
 {
+    /**
+     * Map Commands + Arguments that need to be encoded.
+     */
     private $storeEncoded = [
         'GETSET' => ['from' => 1],
         'LINSERT' => ['from' => 3],
@@ -25,6 +28,9 @@ trait Codec
         'ZSCORE' => ['from' => 1],
     ];
     
+    /**
+     * Map Commands that need to be decoded.
+     */
     private $returnDecoded = [
         'GET',
         'GETSET',
@@ -45,63 +51,77 @@ trait Codec
      * Run a command against the Redis database.
      *
      * @param  string  $method
-     * @param  array  $parameters
+     * @param  array  $arguments
      * @return mixed
      */
-    private function process($method, array $parameters = [])
+    private function process($method, array $arguments = [])
     {
         $commandID = strtoupper($method);
         
-        $parameters = $this->encodeParametersForCommand($commandID, $parameters);
-        $response = $this->callClient($commandID, $parameters);
+        $arguments = $this->encodeArgsForCommand($commandID, $arguments);
+        $response = $this->callClient($commandID, $arguments);
         
         return $this->decodeResponseForCommand($commandID, $response);
     }
     
-    final protected function encodeParametersForCommand($commandID, $parameters)
+    /**
+     * Encode the Arguments for a given Command.
+     * 
+     * @param  string  $commandID
+     * @param  array  $arguments
+     * @return array
+     */
+    final protected function encodeArgsForCommand($commandID, $arguments)
     {
         if (in_array($commandID, array_keys($this->storeEncoded))) {
             $values = $this->storeEncoded[$commandID];
             
             $from = isset($values['from']) ? $values['from'] : 0;
-            $to = isset($values['to']) ? $values['to'] : max(0, count($parameters) -1);
+            $to = isset($values['to']) ? $values['to'] : max(0, count($arguments) -1);
             
             for ($i = $from; $i <= $to; $i++) {
-                $parameters[$i] = $this->encode($parameters[$i]);
+                $arguments[$i] = $this->encode($arguments[$i]);
             }
         }
         
         if ($commandID == 'MSET' || $commandID == 'MSETNX') {
-            if (count($parameters) === 1 && is_array($parameters[0])) {
-                foreach ($parameters[0] as $k => $v) {
-                    $parameters[0][$k] = $this->encode($v);
+            if (count($arguments) === 1 && is_array($arguments[0])) {
+                foreach ($arguments[0] as $k => $v) {
+                    $arguments[0][$k] = $this->encode($v);
                 }
             } else {
-                foreach ($parameters as $k => $v) {
+                foreach ($arguments as $k => $v) {
                     if ($k % 2 != 0) {
-                        $parameters[$k] = $this->encode($v);
+                        $arguments[$k] = $this->encode($v);
                     }
                 }
             }
         }
         
         if ($commandID == 'ZADD') {
-            if (is_array(end($parameters))) {
-                foreach (array_pop($parameters) as $k => $v) {
-                    $parameters[][$k] = $this->encode($v);
+            if (is_array(end($arguments))) {
+                foreach (array_pop($arguments) as $k => $v) {
+                    $arguments[][$k] = $this->encode($v);
                 }
             } else {
-                foreach ($parameters as $k => $v) {
+                foreach ($arguments as $k => $v) {
                     if ($k !== 0 && $k % 2 == 0) {
-                        $parameters[$k] = $this->encode($v);
+                        $arguments[$k] = $this->encode($v);
                     }
                 }
             }
         }
         
-        return $parameters;
+        return $arguments;
     }
     
+    /**
+     * Decode the Response for a given Command.
+     * 
+     * @param  string  $commandID
+     * @param  string  $response
+     * @return mixed
+     */
     final protected function decodeResponseForCommand($commandID, $response)
     {
         if (in_array($commandID, $this->returnDecoded)) {
@@ -121,19 +141,19 @@ trait Codec
      * Call the client.
      * 
      * @param  string  $method
-     * @param  array  $parameters
+     * @param  array  $arguments
      */
-    abstract protected function callClient($method, $parameters);
+    abstract protected function callClient($method, $arguments);
     
     /**
      * Dynamically make a Redis command.
      *
      * @param  string  $method
-     * @param  array  $parameters
+     * @param  array  $arguments
      * @return mixed
      */
-    public function __call($method, $parameters)
+    public function __call($method, $arguments)
     {
-        return $this->process($method, $parameters);
+        return $this->process($method, $arguments);
     }
 }

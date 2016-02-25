@@ -1,4 +1,4 @@
-<?php namespace Xredis\Facades;
+<?php namespace CupOfTea\Xredis\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

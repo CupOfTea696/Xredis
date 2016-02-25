@@ -17,6 +17,6 @@
         "phpunit/phpunit": "^5.2"
     },
     "autoload": {
-        "psr-4": {"Xredis\\": "src/"}
+        "psr-4": {"CupOfTea\\Xredis\\": "src/"}
     }
 }

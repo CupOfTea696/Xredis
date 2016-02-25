@@ -1,6 +1,6 @@
 <?php
 
-use Xredis\Codec\JsonCodec;
+use CupOfTea\Xredis\Codec\JsonCodec;
 
 require_once __DIR__.'/stubs/Codec.php';
 

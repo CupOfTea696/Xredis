@@ -1,6 +1,6 @@
-<?php namespace Xredis;
+<?php namespace CupOfTea\Xredis;
 
-use Xredis\Codec\Codec;
+use CupOfTea\Xredis\Codec\Codec;
 use Illuminate\Redis\Database as IlluminateDatabase;
 
 abstract class Database extends IlluminateDatabase

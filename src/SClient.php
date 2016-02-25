@@ -1,6 +1,6 @@
-<?php namespace Xredis;
+<?php namespace CupOfTea\Xredis;
 
-use Xredis\Codec\SerializeCodec;
+use CupOfTea\Xredis\Codec\SerializeCodec;
 
 class SClient extends Client
 {

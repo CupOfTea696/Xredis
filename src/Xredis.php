@@ -1,4 +1,4 @@
-<?php namespace Xredis;
+<?php namespace CupOfTea\Xredis;
 
 use CupOfTea\Package\Package;
 use Predis\Client as Pclient;
@@ -7,13 +7,28 @@ class Xredis extends Pclient
 {
     use Package;
     
+    /**
+     * The available codecs to store and retrieve data from the Redis Client.
+     * 
+     * @var array
+     */
     private $available_codecs = [
         'json',
         'serialize',
     ];
     
+    /**
+     * The codec instances.
+     * 
+     * @var array
+     */
     private $codecs = [];
     
+    /**
+     * Get the Json Codec instance.
+     * 
+     * @return \CupOfTea\Xredis\JClient
+     */
     public function json()
     {
         if (! isset($this->codecs['json'])) {
@@ -23,6 +38,11 @@ class Xredis extends Pclient
         return $this->codecs['json'];
     }
     
+    /**
+     * Get the Serialize Codec instance.
+     * 
+     * @return \CupOfTea\Xredis\SClient
+     */
     public function serialize()
     {
         if (! isset($this->codecs['serialize'])) {

@@ -1,8 +1,8 @@
 <?php
 
-use Xredis\JClient;
-use Xredis\SClient;
-use Xredis\Xredis;
+use CupOfTea\Xredis\Xredis;
+use CupOfTea\Xredis\JClient;
+use CupOfTea\Xredis\SClient;
 
 class XredisTest extends PHPUnit_Framework_TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-use Xredis\Codec\SerializeCodec;
+use CupOfTea\Xredis\Codec\SerializeCodec;
 
 require_once __DIR__.'/stubs/Codec.php';
 
